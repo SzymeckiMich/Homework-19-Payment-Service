@@ -17,7 +17,8 @@ import static org.mockito.Mockito.when;
 class PaymentServiceTest {
 
     private PaymentService paymentService;
-    @Mock DateTimeProvider dateTimeProvider;
+    @Mock
+    DateTimeProvider dateTimeProvider;
 
     @BeforeEach
     void init() {

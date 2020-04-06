@@ -66,8 +66,8 @@ class PaymentService {
 
     List<Payment> findPaymentsForGivenLastDays(int days) {
         return paymentRepository.findAll().stream()
-                .filter(payment -> payment.getPaymentDate().getYear()==dateTimeProvider.zonedDateTimeNow().getYear())
-                .filter(payment -> payment.getPaymentDate().getDayOfYear()>=dateTimeProvider.zonedDateTimeNow().getDayOfYear()-days)
+                .filter(payment -> payment.getPaymentDate().getYear() == dateTimeProvider.zonedDateTimeNow().getYear())
+                .filter(payment -> payment.getPaymentDate().getDayOfYear() >= dateTimeProvider.zonedDateTimeNow().getDayOfYear() - days)
                 .collect(Collectors.toList());
     }
 
@@ -125,6 +125,21 @@ class PaymentService {
     }
 
     Set<Payment> findPaymentsWithValueOver(int value) {
-        throw new RuntimeException("Not implemented");
+        return paymentRepository.findAll().stream()
+                .filter(payment -> checkPaymentValue(payment, value))
+                .collect(Collectors.toSet());
+    }
+
+    private boolean checkPaymentValue(Payment payment, int value) {
+        BigDecimal bigValue = BigDecimal.valueOf(value);
+        BigDecimal sumOfPayments = payment.getPaymentItems().stream()
+                .map(paymentItem -> paymentItem.getFinalPrice())
+                .reduce(BigDecimal.valueOf(0), new BinaryOperator<BigDecimal>() {
+                    @Override
+                    public BigDecimal apply(BigDecimal bigDecimal, BigDecimal bigDecimal2) {
+                        return bigDecimal.add(bigDecimal2);
+                    }
+                });
+        return sumOfPayments.compareTo(bigValue) == 1;
     }
 }
